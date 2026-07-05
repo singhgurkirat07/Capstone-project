@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Phoenix Research Portal — AI-powered research assistant with autonomous agent capabilities.">
+  <title>Phoenix — Let the Fire Burn</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+</head>
+<body>
+
+  <!-- Fire Background (Usage) -->
+  <div id="fire-bg">
+    <div class="fire-layer fire-layer-1"></div>
+    <div class="fire-layer fire-layer-2"></div>
+    <div class="fire-layer fire-layer-3"></div>
+  </div>
+  <div id="vignette"></div>
+
+  <!-- Center Search Fire -->
+  <div id="center-fire-container">
+    <div class="center-fire"></div>
+    <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+    <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+    <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+    <div class="ember"></div>
+  </div>
+
+  <!-- App -->
+  <div id="app">
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <div class="logo">Phoenix<span>AI Companion</span></div>
+      </div>
+
+      <div class="top-bar-center">
+      </div>
+
+      <div class="top-bar-right">
+        <!-- Model Toggle -->
+        <div class="model-toggle" id="modelToggle">
+          <button class="model-option active" data-model="gemini">☁️ Gemini</button>
+          <button class="model-option" data-model="local">💻 Local</button>
+          <select class="local-model-select" id="localModelSelect" style="display:none">
+            <option value="">No models</option>
+          </select>
+        </div>
+
+        <!-- Usage Meter (Hidden from UI, runs in background) -->
+        <div class="usage-meter" id="usageMeter" style="display: none;">
+          <div class="usage-bar-wrap">
+            <div class="usage-bar-fill" id="usageBarFill" style="width:0%"></div>
+          </div>
+          <span class="usage-text" id="usageText">0/50</span>
+        </div>
+
+        <!-- Nav Icons -->
+        <div class="nav-icons">
+          <button class="nav-icon-btn" data-panel="tasks" title="Tasks">📋</button>
+          <button class="nav-icon-btn" data-panel="notes" title="Notes">📝</button>
+          <button class="nav-icon-btn" data-panel="knowledge" title="Knowledge Base">📚</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero (shown when no chat) -->
+      <section class="hero" id="heroSection">
+        <h1 class="hero-title">Let the Fire Burn</h1>
+        <p class="hero-sub">Phoenix Research Portal</p>
+        <div class="hero-divider"></div>
+        <div class="chat-input-area" style="width:100%;max-width:600px;">
+          <div class="chat-input-wrap">
+            <textarea class="chat-input" id="heroInput" placeholder="Ask anything... research, code, plan, write" rows="1"></textarea>
+            <button class="send-btn" id="heroSend" title="Send">→</button>
+          </div>
+          <div class="chat-hint">Press Enter to send · Shift+Enter for new line</div>
+        </div>
+      </section>
+
+      <!-- Chat (hidden initially) -->
+      <section class="chat-container" id="chatSection" style="display:none;">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-area">
+          <div class="chat-input-wrap">
+            <textarea class="chat-input" id="chatInput" placeholder="Continue the conversation..." rows="1"></textarea>
+            <button class="send-btn" id="chatSend" title="Send">→</button>
+          </div>
+          <div class="chat-hint">Press Enter to send · Shift+Enter for new line</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Panel Overlay -->
+    <div class="panel-overlay" id="panelOverlay"></div>
+
+    <!-- Tasks Panel -->
+    <aside class="side-panel" id="panel-tasks">
+      <div class="panel-header">
+        <h2 class="panel-title">Tasks</h2>
+        <button class="panel-close" data-close-panel>✕</button>
+      </div>
+      <div class="panel-body">
+        <button class="panel-add-btn" id="addTaskBtn">+ New Task</button>
+        <div class="panel-form" id="taskForm">
+          <input type="text" id="taskTitle" placeholder="Task title...">
+          <textarea id="taskDesc" placeholder="Description (optional)"></textarea>
+          <select id="taskPriority">
+            <option value="low">Low Priority</option>
+            <option value="medium" selected>Medium Priority</option>
+            <option value="high">High Priority</option>
+          </select>
+          <div class="panel-form-actions">
+            <button class="btn btn-ghost" id="taskCancel">Cancel</button>
+            <button class="btn btn-primary" id="taskSubmit">Add Task</button>
+          </div>
+        </div>
+        <div id="taskList"></div>
+      </div>
+    </aside>
+
+    <!-- Notes Panel -->
+    <aside class="side-panel" id="panel-notes">
+      <div class="panel-header">
+        <h2 class="panel-title">Notes</h2>
+        <button class="panel-close" data-close-panel>✕</button>
+      </div>
+      <div class="panel-body">
+        <button class="panel-add-btn" id="addNoteBtn">+ New Note</button>
+        <div class="panel-form" id="noteForm">
+          <input type="text" id="noteTitle" placeholder="Note title...">
+          <textarea id="noteContent" placeholder="Write your note..." rows="4"></textarea>
+          <div class="panel-form-actions">
+            <button class="btn btn-ghost" id="noteCancel">Cancel</button>
+            <button class="btn btn-primary" id="noteSubmit">Save Note</button>
+          </div>
+        </div>
+        <div id="noteList"></div>
+      </div>
+    </aside>
+
+    <!-- Knowledge Panel -->
+    <aside class="side-panel" id="panel-knowledge">
+      <div class="panel-header">
+        <h2 class="panel-title">Knowledge</h2>
+        <button class="panel-close" data-close-panel>✕</button>
+      </div>
+      <div class="panel-body">
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-zone-icon">📄</div>
+          <div class="upload-zone-text">Drop files here or click to upload</div>
+          <div class="upload-zone-hint">Supports PDF, TXT, MD</div>
+          <input type="file" id="fileInput" accept=".pdf,.txt,.md" style="display:none">
+        </div>
+        <div id="knowledgeList"></div>
+      </div>
+    </aside>
+
+  </div>
+
+  <!-- Usage Warning Modal -->
+  <div class="usage-warning" id="usageWarning">
+    <div class="usage-warning-card">
+      <div class="usage-warning-icon">🔥</div>
+      <h3 class="usage-warning-title">The Fire Has Consumed Its Fuel</h3>
+      <p class="usage-warning-text">
+        Daily usage limit reached. The flames will reignite tomorrow.<br>
+        Switch to a local model to continue without limits.
+      </p>
+      <button class="btn btn-primary" style="margin-top:20px" onclick="document.getElementById('usageWarning').classList.remove('visible')">Close</button>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
